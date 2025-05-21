@@ -1,0 +1,154 @@
+
+    @tailwind base;
+    @tailwind components;
+    @tailwind utilities;
+
+    @layer base {
+      :root {
+        --background: 0 0% 100%;
+        --foreground: 222.2 84% 4.9%;
+
+        --card: 0 0% 100%;
+        --card-foreground: 222.2 84% 4.9%;
+
+        --popover: 0 0% 100%;
+        --popover-foreground: 222.2 84% 4.9%;
+
+        --primary: 340 82% 52%; /* Vivid Pink */
+        --primary-foreground: 0 0% 100%; /* White */
+
+        --secondary: 260 60% 95%; /* Soft Lavender */
+        --secondary-foreground: 260 60% 20%; /* Dark Purple */
+
+        --muted: 210 40% 96.1%;
+        --muted-foreground: 215.4 16.3% 46.9%;
+
+        --accent: 45 93% 59%; /* Gold */
+        --accent-foreground: 45 93% 10%; /* Dark Brown/Gold */
+
+        --destructive: 0 84.2% 60.2%;
+        --destructive-foreground: 0 0% 98%;
+
+        --border: 214.3 31.8% 91.4%;
+        --input: 214.3 31.8% 91.4%;
+        --ring: 340 82% 52%; /* Primary color for rings */
+
+        --radius: 0.75rem;
+
+        /* GLOWFY Theme Variables */
+        --glowfy-background: 30 50% 98%; /* Off-white with warmth */
+        --glowfy-foreground: 240 10% 20%; /* Dark Grey Blue */
+        
+        --glowfy-primary: 330 85% 60%; /* Rose Gold / Deep Pink */
+        --glowfy-primary-foreground: 0 0% 100%; /* White */
+        
+        --glowfy-secondary: 270 70% 85%; /* Soft Lavender */
+        --glowfy-secondary-foreground: 270 70% 25%; /* Darker Purple */
+        
+        --glowfy-accent: 35 100% 65%; /* Bright Gold/Coral */
+        --glowfy-accent-foreground: 35 100% 15%; /* Darker shade for accent text */
+        
+        --glowfy-card: 0 0% 100%; /* White card */
+        --glowfy-card-foreground: 240 10% 20%; /* Dark Grey Blue text on card */
+        
+        --glowfy-muted: 220 20% 94%; /* Light Grey Blue */
+        --glowfy-muted-foreground: 220 10% 45%; /* Medium Grey Blue */
+        
+        --glowfy-border: 330 20% 85%; /* Light Pinkish border */
+        --glowfy-input: 330 20% 92%; /* Lighter Pinkish input bg */
+        --glowfy-ring: 330 85% 60%; /* Primary color for focus rings */
+      }
+
+      .dark {
+        --background: 222.2 84% 4.9%;
+        --foreground: 210 40% 98%;
+
+        --card: 222.2 84% 4.9%;
+        --card-foreground: 210 40% 98%;
+
+        --popover: 222.2 84% 4.9%;
+        --popover-foreground: 210 40% 98%;
+
+        --primary: 340 82% 62%;
+        --primary-foreground: 0 0% 100%;
+
+        --secondary: 260 60% 25%;
+        --secondary-foreground: 210 40% 98%;
+
+        --muted: 217.2 32.6% 17.5%;
+        --muted-foreground: 215 20.2% 65.1%;
+
+        --accent: 45 93% 69%;
+        --accent-foreground: 45 93% 98%;
+
+        --destructive: 0 62.8% 30.6%;
+        --destructive-foreground: 0 0% 98%;
+
+        --border: 217.2 32.6% 17.5%;
+        --input: 217.2 32.6% 17.5%;
+        --ring: 340 82% 62%;
+
+        /* Dark GLOWFY Theme Variables */
+        --glowfy-background: 240 10% 10%; 
+        --glowfy-foreground: 30 30% 90%; 
+        
+        --glowfy-primary: 330 75% 65%; 
+        --glowfy-primary-foreground: 0 0% 100%;
+        
+        --glowfy-secondary: 270 50% 30%; 
+        --glowfy-secondary-foreground: 270 50% 85%;
+        
+        --glowfy-accent: 35 90% 70%; 
+        --glowfy-accent-foreground: 35 90% 10%; 
+        
+        --glowfy-card: 240 10% 15%; 
+        --glowfy-card-foreground: 30 30% 90%;
+        
+        --glowfy-muted: 220 15% 25%; 
+        --glowfy-muted-foreground: 220 10% 65%; 
+        
+        --glowfy-border: 330 20% 30%; 
+        --glowfy-input: 330 20% 25%; 
+        --glowfy-ring: 330 75% 65%;
+      }
+    }
+
+    @layer base {
+      * {
+        @apply border-border;
+      }
+      body {
+        @apply bg-glowfy-background text-glowfy-foreground;
+        font-family: 'Poppins', sans-serif; /* Example: Using Poppins, ensure it's linked in index.html or imported */
+      }
+      /* Add a nice gradient background to the body */
+      body::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        width: 100vw;
+        z-index: -1;
+        background: linear-gradient(135deg, hsl(var(--glowfy-primary) / 0.1), hsl(var(--glowfy-secondary) / 0.1) 70%, hsl(var(--glowfy-accent) / 0.1));
+        opacity: 0.3;
+      }
+    }
+
+    /* Custom scrollbar for a more modern look */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: hsl(var(--glowfy-background) / 0.5);
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: hsl(var(--glowfy-primary) / 0.7);
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: hsl(var(--glowfy-primary));
+    }
+  
