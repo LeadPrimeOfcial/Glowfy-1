@@ -1,154 +1,165 @@
+// src/services/bookingService.js
+import apiClient from './api';
 
-    const initialServices = [
-      { id: 'esmaltação', name: 'Esmaltação', duration: 60, price: 30.00, active: true },
-      { id: 'manutencao', name: 'Manutenção', duration: 90, price: 90.00, active: true },
-      { id: 'manutencao_decoracao', name: 'Manutenção com Decoração', duration: 120, price: 120.00, active: true },
-      { id: 'primeira_aplicacao', name: '1ª Aplicação', duration: 120, price: 150.00, active: true },
-      { id: 'blindagem_gel', name: 'Blindagem em Gel', duration: 90, price: 70.00, active: true },
-    ];
+// === FUNÇÕES PARA CLIENTES (ADMIN) ===
+export const getClients = (searchTerm = "") => {
+  let endpoint = 'clientes_read.php';
+  if (searchTerm) {
+    endpoint += `?searchTerm=${encodeURIComponent(searchTerm)}`;
+  }
+  return apiClient(endpoint, { method: 'GET' }, true);
+};
 
-    const initialWorkingHours = {
-      monday: { enabled: true, slots: [{ start: "10:00", end: "12:00" }, { start: "13:30", end: "17:30"}] },
-      tuesday: { enabled: true, slots: [{ start: "10:00", end: "12:00" }, { start: "13:30", end: "17:30"}] },
-      wednesday: { enabled: true, slots: [{ start: "10:00", end: "12:00" }, { start: "13:30", end: "17:30"}] },
-      thursday: { enabled: true, slots: [{ start: "10:00", end: "12:00" }, { start: "13:30", end: "17:30"}] },
-      friday: { enabled: true, slots: [{ start: "10:00", end: "12:00" }, { start: "13:30", end: "17:30"}] },
-      saturday: { enabled: true, slots: [{ start: "08:00", end: "17:30" }] },
-      sunday: { enabled: false, slots: [] }
-    };
-    
-    const initialTerms = 
-        "-Não é permitido acompanhante, nosso espaço é elaborado só para atendimento pessoal.\n" +
-        "-Não é permitido trazer crianças, caso não tenha como vir sem sua criança remarque seu horário para um dia mais propício pois compromete todo o nosso atendimento e Horário!\n" +
-        "-É proibido o consumo de bebidas alcoólicas dentro do salão.\n" +
-        "-Nossa tolerância para atrasos é de 15 minutos. Após esse prazo, infelizmente, o agendamento será cancelado para não comprometer os próximos atendimentos.\n" +
-        "Obs: Por favor pedimos a extrema compreensão em todas as regras para evitar cancelamento de atendimento e situações constrangedoras!";
+export const saveClient = (clientFormData, isUpdating = false) => {
+  const endpoint = isUpdating ? 'clientes_update.php' : 'clientes_create.php';
+  return apiClient(endpoint, { method: 'POST', body: clientFormData, isFormData: true }, true);
+};
 
-    const initialPaymentMethods = [
-        { id: 'pix', name: 'Pix', active: true },
-        { id: 'dinheiro', name: 'Dinheiro', active: true },
-        { id: 'credito', name: 'Crédito', active: true },
-        { id: 'debito', name: 'Débito', active: true },
-    ];
+export const deleteClient = (clientId) => {
+  return apiClient('clientes_delete.php', { method: 'POST', body: { id: clientId } }, true);
+};
 
-    const getFromStorage = (key, defaultValue) => {
-        const stored = localStorage.getItem(key);
-        return stored ? JSON.parse(stored) : defaultValue;
-    };
-    
-    const saveToStorage = (key, value) => {
-        localStorage.setItem(key, JSON.stringify(value));
-    };
+// === FUNÇÕES PARA SERVIÇOS (ADMIN) ===
+export const getAllServicesAdmin = () => {
+    return apiClient('servicos_read.php', { method: 'GET' }, true);
+};
+export const getServices = getAllServicesAdmin; // Alias
 
-    // Services
-    export const getServices = () => getFromStorage('glowfy_services', initialServices).filter(s => s.active);
-    export const getAllServicesAdmin = () => getFromStorage('glowfy_services', initialServices);
-    export const saveService = (serviceData) => {
-        let services = getFromStorage('glowfy_services', initialServices);
-        if (serviceData.id) {
-            services = services.map(s => s.id === serviceData.id ? {...s, ...serviceData} : s);
-        } else {
-            services.push({ ...serviceData, id: `service_${Date.now()}`});
-        }
-        saveToStorage('glowfy_services', services);
-    };
-    export const deleteService = (serviceId) => {
-        let services = getFromStorage('glowfy_services', initialServices);
-        services = services.filter(s => s.id !== serviceId);
-        saveToStorage('glowfy_services', services);
-    };
+export const saveService = (serviceData, isUpdating = false) => {
+    const endpoint = isUpdating ? 'servicos_update.php' : 'servicos_create.php';
+    return apiClient(endpoint, { method: 'POST', body: serviceData }, true);
+};
 
-    // Working Hours
-    export const getWorkingHours = () => getFromStorage('glowfy_working_hours', initialWorkingHours);
-    export const saveWorkingHours = (hours) => saveToStorage('glowfy_working_hours', hours);
+export const deleteService = (serviceId) => {
+    return apiClient('servicos_delete.php', { method: 'POST', body: { id: serviceId } }, true);
+};
 
-    // Terms
-    export const getTerms = () => getFromStorage('glowfy_terms', initialTerms);
-    export const saveTerms = (termsText) => saveToStorage('glowfy_terms', termsText);
-    
-    // Payment Methods
-    export const getPaymentMethods = () => getFromStorage('glowfy_payment_methods', initialPaymentMethods).filter(pm => pm.active);
-    export const getAllPaymentMethodsAdmin = () => getFromStorage('glowfy_payment_methods', initialPaymentMethods);
-    export const savePaymentMethod = (pmData) => {
-        let methods = getFromStorage('glowfy_payment_methods', initialPaymentMethods);
-        if (pmData.id) {
-            methods = methods.map(pm => pm.id === pmData.id ? {...pm, ...pmData} : pm);
-        } else {
-            methods.push({ ...pmData, id: `pm_${Date.now()}`});
-        }
-        saveToStorage('glowfy_payment_methods', methods);
-    };
-    export const deletePaymentMethod = (pmId) => {
-        let methods = getFromStorage('glowfy_payment_methods', initialPaymentMethods);
-        methods = methods.filter(pm => pm.id !== pmId);
-        saveToStorage('glowfy_payment_methods', methods);
-    };
-
-    // Appointments
-    export const getAppointments = () => getFromStorage('glowfy_appointments', []);
-    export const saveAppointment = (appointment) => {
-        const appointments = getAppointments();
-        // Check if editing or adding new
-        const existingIndex = appointments.findIndex(app => app.id === appointment.id);
-        if (existingIndex > -1) {
-            appointments[existingIndex] = appointment;
-        } else {
-            appointments.push(appointment);
-        }
-        saveToStorage('glowfy_appointments', appointments);
-    };
-    export const updateAppointmentStatus = (appointmentId, status) => {
-        let appointments = getAppointments();
-        appointments = appointments.map(app => app.id === appointmentId ? { ...app, status } : app);
-        saveToStorage('glowfy_appointments', appointments);
-    };
-    export const getAppointmentsForClient = (cpf) => {
-        const appointments = getAppointments();
-        return appointments.filter(app => app.cpf === cpf).sort((a,b) => new Date(b.date) - new Date(a.date));
-    };
-
-    // Clients
-    export const getClients = () => getFromStorage('glowfy_clients', []);
-    export const saveClient = (clientData) => {
-        let clients = getClients();
-        // Use CPF as ID for simplicity with localStorage, assuming CPF is unique
-        const existingIndex = clients.findIndex(c => c.cpf === clientData.cpf);
-        if (existingIndex > -1) {
-            clients[existingIndex] = { ...clients[existingIndex], ...clientData };
-        } else {
-            clients.push({ ...clientData }); // Don't add new id if CPF is the id
-        }
-        saveToStorage('glowfy_clients', clients);
-    };
-    export const deleteClient = (cpf) => {
-        let clients = getClients();
-        clients = clients.filter(c => c.cpf !== cpf);
-        saveToStorage('glowfy_clients', clients);
-    };
-    
-    // General Settings
-    export const getSettings = () => getFromStorage('glowfy_general_settings', { salonName: "Meu Salão Glowfy" });
-    export const saveSettings = (settings) => saveToStorage('glowfy_general_settings', settings);
-
-    // Sales
-    export const getSales = () => getFromStorage('glowfy_sales', []);
-    export const saveSale = (sale) => {
-        const sales = getSales();
-        sales.push(sale);
-        saveToStorage('glowfy_sales', sales);
-    };
-
-    // Initialize default data if nothing is in localStorage
-    if (!localStorage.getItem('glowfy_services')) {
-        saveToStorage('glowfy_services', initialServices);
+// === FUNÇÕES PARA AGENDAMENTOS (ADMIN) ===
+export const getAppointmentsAdmin = (filters = {}) => { 
+    let queryString = '';
+    if (Object.keys(filters).length > 0) {
+        queryString = '?' + new URLSearchParams(filters).toString();
     }
-    if (!localStorage.getItem('glowfy_working_hours')) {
-        saveToStorage('glowfy_working_hours', initialWorkingHours);
+    return apiClient(`agendamentos_admin_read.php${queryString}`, { method: 'GET' }, true);
+};
+
+export const saveAppointmentAdmin = (appointmentData, isUpdating = false) => {
+    const endpoint = isUpdating ? 'agendamentos_admin_update.php' : 'agendamentos_admin_create.php';
+    return apiClient(endpoint, { method: 'POST', body: appointmentData }, true);
+};
+
+export const updateAppointmentStatusAdmin = (action, appointmentId, additionalData = {}) => {
+    let endpoint = '';
+    if (action === 'cancel') {
+        endpoint = 'agendamentos_admin_cancel.php';
+    } else if (action === 'finalize') {
+        endpoint = 'agendamentos_admin_finalize.php';
+    } else {
+        return Promise.reject(new Error("Ação de status de agendamento inválida."));
     }
-    if (!localStorage.getItem('glowfy_terms')) {
-        saveToStorage('glowfy_terms', initialTerms);
-    }
-    if (!localStorage.getItem('glowfy_payment_methods')) {
-        saveToStorage('glowfy_payment_methods', initialPaymentMethods);
-    }
-    // No initial appointments, clients, or sales needed
+    const payload = { id_agendamento: appointmentId, ...additionalData };
+    return apiClient(endpoint, { method: 'POST', body: payload }, true);
+};
+
+export const getAppointmentsForClientAdmin = (clienteId) => { 
+    return apiClient(`clientes_agendamentos_read.php?id_cliente=${clienteId}`, { method: 'GET' }, true);
+};
+
+// === FUNÇÕES PARA CONFIGURAÇÕES GERAIS (ADMIN) ===
+export const getSettingsAdmin = () => { 
+    return apiClient('config_geral_read.php', { method: 'GET' }, true); 
+};
+export const saveSettingsAdmin = (settingsData) => { 
+    return apiClient('config_geral_save.php', { method: 'POST', body: settingsData }, true);
+};
+
+// === FUNÇÕES PARA HORÁRIOS DE FUNCIONAMENTO (ADMIN) ===
+export const getWorkingHoursAdmin = () => { 
+    return apiClient('config_horarios_read.php', { method: 'GET' }, true);
+};
+export const saveWorkingHoursAdmin = (horariosData) => { 
+    return apiClient('config_horarios_save.php', { method: 'POST', body: { horarios: horariosData } }, true);
+};
+
+// === FUNÇÕES PARA FORMAS DE PAGAMENTO (ADMIN) ===
+export const getAllPaymentMethodsAdmin = () => { 
+    console.warn("getAllPaymentMethodsAdmin chamado. Endpoint PHP 'formas_pagamento_admin_read.php' precisa ser implementado/ajustado.");
+    return apiClient('formas_pagamento_admin_read.php', { method: 'GET' }, true); 
+};
+export const savePaymentMethodAdmin = (paymentMethodData, isUpdating = false) => {
+    const endpoint = isUpdating ? 'formas_pagamento_admin_update.php' : 'formas_pagamento_admin_create.php';
+    console.warn(`savePaymentMethodAdmin chamado. Endpoint ${endpoint} precisa ser implementado/ajustado.`);
+    return apiClient(endpoint, { method: 'POST', body: paymentMethodData}, true);
+};
+export const deletePaymentMethodAdmin = (paymentMethodId) => {
+    console.warn("deletePaymentMethodAdmin chamado. Endpoint 'formas_pagamento_admin_delete.php' precisa ser implementado/ajustado.");
+    return apiClient('formas_pagamento_admin_delete.php', { method: 'POST', body: {id: paymentMethodId}}, true);
+};
+
+// === FUNÇÕES PÚBLICAS (Usadas por ClientBookingPage.jsx) ===
+export const getServicosPublic = (slugEmpresa) => {
+  if (!slugEmpresa) return Promise.reject(new Error("Slug da empresa é obrigatório."));
+  return apiClient(`servicos_read.php?slug_empresa=${slugEmpresa}`);
+};
+
+export const getAvailabilityPublic = (slugEmpresa, date, serviceId) => {
+  if (!slugEmpresa) return Promise.reject(new Error("Slug da empresa é obrigatório."));
+  return apiClient(`agendamentos_availability.php?slug_empresa=${slugEmpresa}&date=${date}&serviceId=${serviceId}`);
+};
+
+export const checkClientByCpfPublic = (slugEmpresa, cpf) => {
+  if (!slugEmpresa) return Promise.reject(new Error("Slug da empresa é obrigatório."));
+  const numericCpf = cpf.replace(/\D/g, '');
+  return apiClient(`clientes_read.php?slug_empresa=${slugEmpresa}&cpf=${numericCpf}`);
+};
+
+export const createAgendamentoPublic = (formData) => { 
+  return apiClient('agendamentos_create.php', { method: 'POST', body: formData, isFormData: true });
+};
+
+export const getTermosAtendimentoPublic = (slugEmpresa) => {
+  if (!slugEmpresa) return Promise.reject(new Error("Slug da empresa é obrigatório."));
+  return apiClient(`config_geral_read.php?slug_empresa=${slugEmpresa}`);
+};
+
+// =============================================================
+// EXPORT DEFAULT: Agrupa todas as funções para importação padrão
+// =============================================================
+const bookingService = {
+  // Funções do Admin
+  getClients,
+  saveClient,
+  deleteClient,
+  getAllServicesAdmin,
+  getServices: getAllServicesAdmin, // Alias para admin
+  saveService,
+  deleteService,
+  getAppointments: getAppointmentsAdmin, // Alias para admin
+  saveAppointment: saveAppointmentAdmin, 
+  updateAppointmentStatus: updateAppointmentStatusAdmin, 
+  getAppointmentsForClient: getAppointmentsForClientAdmin, 
+  getSettings: getSettingsAdmin, // Alias para admin
+  saveSettings: saveSettingsAdmin, 
+  getWorkingHours: getWorkingHoursAdmin, // Alias para admin
+  saveWorkingHours: saveWorkingHoursAdmin,
+  // Corrigindo a disponibilização de getAllPaymentMethodsAdmin no default export
+  getPaymentMethods: getAllPaymentMethodsAdmin, // Alias para admin
+  getAllPaymentMethodsAdmin, // <<< ADICIONADO getAllPaymentMethodsAdmin diretamente aqui também
+
+  savePaymentMethod: savePaymentMethodAdmin, 
+  deletePaymentMethod: deletePaymentMethodAdmin,
+
+  // Funções Públicas - Se ClientBookingPage.jsx importar 'bookingService' como default
+  // e chamar bookingService.getServicosPublic(), elas precisam estar aqui.
+  // Caso contrário, ClientBookingPage.jsx deve importar nomeadamente.
+  // Para manter a separação, ClientBookingPage.jsx deve ter seu próprio clientBookingService.js
+  // ou importar nomeadamente as funções públicas daqui.
+  // Por agora, vou adicionar as públicas aqui também para garantir que funcionem se você tiver unificado.
+  getServicosPublic,
+  getAvailabilityPublic,
+  checkClientByCpfPublic,
+  createAgendamentoPublic,
+  getTermosAtendimentoPublic,
+};
+
+export default bookingService;
